@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import { personalData } from '../../data/portfolioData';
 import { 
   ArrowRight, 
@@ -18,6 +19,13 @@ import {
 import { Github, Linkedin } from '../common/BrandIcons';
 
 const Hero = ({ onOpenResume }) => {
+  const { theme } = useTheme();
+  const themeRef = useRef(theme);
+
+  useEffect(() => {
+    themeRef.current = theme;
+  }, [theme]);
+
   const canvasRef = useRef(null);
   const cardRef = useRef(null);
   
@@ -77,7 +85,7 @@ const Hero = ({ onOpenResume }) => {
     return () => clearTimeout(timer);
   }, [displayText, isDeleting, currentRoleIndex, roles, typingSpeed]);
 
-  // Canvas Greenish Cyber Glitch Effect (Fires every 4-5 seconds)
+  // Canvas Old TV Glitch Effect: Greenish Cyber in Dark Mode, Rough B&W in Light Mode (Fires every 4-5 seconds)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -95,22 +103,32 @@ const Hero = ({ onOpenResume }) => {
 
     window.addEventListener('resize', handleResize);
 
-    // Offscreen canvas for generating authentic Old TV phosphor static noise grains
+    // Offscreen canvas for generating authentic Old TV static noise grains
     const noiseCanvas = document.createElement('canvas');
     noiseCanvas.width = 180;
     noiseCanvas.height = 180;
     const noiseCtx = noiseCanvas.getContext('2d');
 
-    const updateTvGrains = () => {
+    const updateTvGrains = (isLight) => {
       const imgData = noiseCtx.createImageData(180, 180);
       const data = imgData.data;
       for (let i = 0; i < data.length; i += 4) {
         const val = Math.random() * 255;
-        // Greenish phosphor Old TV Static Grain
-        data[i] = val * 0.15;                          // R
-        data[i + 1] = val;                             // G (bright green phosphor)
-        data[i + 2] = val * 0.35;                      // B
-        data[i + 3] = Math.random() < 0.45 ? Math.floor(Math.random() * 110 + 40) : 0; // Alpha
+        if (isLight) {
+          // Authentic Black & White rough static noise with grain speckles & roughness
+          const roughMono = Math.random() < 0.3 ? 12 : (Math.random() > 0.7 ? 245 : val);
+          data[i] = roughMono;     // R
+          data[i + 1] = roughMono; // G
+          data[i + 2] = roughMono; // B
+          // High grain density and roughness
+          data[i + 3] = Math.random() < 0.6 ? Math.floor(Math.random() * 150 + 55) : 0;
+        } else {
+          // Greenish phosphor Old TV Static Grain (Dark Mode)
+          data[i] = val * 0.15;                          // R
+          data[i + 1] = val;                             // G (bright green phosphor)
+          data[i + 2] = val * 0.35;                      // B
+          data[i + 3] = Math.random() < 0.45 ? Math.floor(Math.random() * 110 + 40) : 0; // Alpha
+        }
       }
       noiseCtx.putImageData(imgData, 0, 0);
     };
@@ -123,20 +141,35 @@ const Hero = ({ onOpenResume }) => {
     const glitchDuration = 320; // 320ms duration of active glitch burst
     let glitchSlices = [];
 
-    // Generate random horizontal slice bands for Old TV sync tear
-    const generateGlitchBurst = () => {
+    // Generate random horizontal slice bands for sync tear
+    const generateGlitchBurst = (isLight) => {
       glitchSlices = [];
-      const numSlices = Math.floor(Math.random() * 6 + 5); // 5 to 11 slices
+      const numSlices = Math.floor(Math.random() * 7 + 6); // 6 to 12 slices
       for (let i = 0; i < numSlices; i++) {
+        let sliceColor;
+        if (isLight) {
+          // Black and white monochrome palette with varying deep grays and stark whites
+          const bwChoices = [
+            'rgba(0, 0, 0, ',
+            'rgba(15, 23, 42, ',
+            'rgba(51, 65, 85, ',
+            'rgba(241, 245, 249, ',
+            'rgba(100, 116, 139, '
+          ];
+          sliceColor = bwChoices[Math.floor(Math.random() * bwChoices.length)];
+        } else {
+          sliceColor = Math.random() > 0.4 ? 'rgba(16, 185, 129, ' : (Math.random() > 0.5 ? 'rgba(0, 255, 136, ' : 'rgba(6, 182, 212, ');
+        }
+
         glitchSlices.push({
           y: Math.random() * height,
           height: Math.random() * 28 + 6,
-          offsetX: (Math.random() - 0.5) * 70, // Horizontal sync tear
+          offsetX: (Math.random() - 0.5) * 75, // Horizontal sync tear
           width: Math.random() > 0.3 ? width : width * (Math.random() * 0.5 + 0.5),
           startX: Math.random() > 0.5 ? Math.random() * (width * 0.3) : 0,
-          color: Math.random() > 0.4 ? 'rgba(16, 185, 129, ' : (Math.random() > 0.5 ? 'rgba(0, 255, 136, ' : 'rgba(6, 182, 212, '),
-          alpha: Math.random() * 0.28 + 0.15,
-          hasBorder: Math.random() > 0.4
+          color: sliceColor,
+          alpha: isLight ? Math.random() * 0.36 + 0.2 : Math.random() * 0.28 + 0.15,
+          hasBorder: Math.random() > 0.35
         });
       }
     };
@@ -145,7 +178,8 @@ const Hero = ({ onOpenResume }) => {
       isGlitching = true;
       setIsEarthquakeGlitch(true);
       glitchStartTime = Date.now();
-      generateGlitchBurst();
+      const isLight = themeRef.current === 'light';
+      generateGlitchBurst(isLight);
     };
 
     // Canvas click to trigger glitch interactively
@@ -156,6 +190,7 @@ const Hero = ({ onOpenResume }) => {
 
     const render = () => {
       const now = Date.now();
+      const isLight = themeRef.current === 'light';
 
       // Check if it's time for the scheduled 4-5 second glitch burst
       if (!isGlitching && now - lastGlitchTime >= nextGlitchDelay) {
@@ -181,33 +216,40 @@ const Hero = ({ onOpenResume }) => {
         const glitchFade = Math.sin(progress * Math.PI); // Smooth peak & fade
 
         // Every frame during glitch, generate fresh animated TV grains
-        updateTvGrains();
+        updateTvGrains(isLight);
         const grainPattern = ctx.createPattern(noiseCanvas, 'repeat');
         if (grainPattern) {
           ctx.fillStyle = grainPattern;
-          ctx.globalAlpha = 0.65 * glitchFade;
+          ctx.globalAlpha = (isLight ? 0.78 : 0.65) * glitchFade;
           ctx.fillRect(0, 0, width, height);
           ctx.globalAlpha = 1.0;
         }
 
-        // 1. Dense Old TV CRT Phosphor Scanlines
-        ctx.fillStyle = `rgba(0, 255, 136, ${0.14 * glitchFade})`;
+        // 1. Dense Old TV CRT Scanlines (Dark charcoal in light mode, bright phosphor green in dark mode)
+        ctx.fillStyle = isLight
+          ? `rgba(15, 23, 42, ${0.16 * glitchFade})`
+          : `rgba(0, 255, 136, ${0.14 * glitchFade})`;
         for (let y = 0; y < height; y += 4) {
-          ctx.fillRect(0, y, width, 1.2);
+          ctx.fillRect(0, y, width, isLight ? 1.5 : 1.2);
         }
 
         // 2. Rolling V-Hold / VHS Tracking Distortion Bar
         const trackingY = ((progress * 1.6) * height) % height;
         const barHeight = Math.random() * 35 + 45;
-        ctx.fillStyle = `rgba(16, 185, 129, ${0.28 * glitchFade})`;
+        ctx.fillStyle = isLight
+          ? `rgba(15, 23, 42, ${0.24 * glitchFade})`
+          : `rgba(16, 185, 129, ${0.28 * glitchFade})`;
         ctx.fillRect(0, trackingY, width, barHeight);
-        ctx.strokeStyle = `rgba(0, 255, 136, ${0.75 * glitchFade})`;
-        ctx.lineWidth = 1.5;
+
+        ctx.strokeStyle = isLight
+          ? `rgba(0, 0, 0, ${0.85 * glitchFade})`
+          : `rgba(0, 255, 136, ${0.75 * glitchFade})`;
+        ctx.lineWidth = isLight ? 2 : 1.5;
         ctx.strokeRect(0, trackingY, width, barHeight);
 
         // 3. Horizontal Sync Tear Slices
         if (Math.random() > 0.35) {
-          generateGlitchBurst();
+          generateGlitchBurst(isLight);
         }
 
         for (let i = 0; i < glitchSlices.length; i++) {
@@ -218,19 +260,51 @@ const Hero = ({ onOpenResume }) => {
           ctx.fillRect(slice.startX + slice.offsetX, slice.y, slice.width, slice.height);
 
           if (slice.hasBorder) {
-            ctx.strokeStyle = `rgba(0, 255, 136, ${currentAlpha * 1.5})`;
-            ctx.lineWidth = 1;
+            ctx.strokeStyle = isLight
+              ? `rgba(0, 0, 0, ${currentAlpha * 2.2})`
+              : `rgba(0, 255, 136, ${currentAlpha * 1.5})`;
+            ctx.lineWidth = isLight ? 1.5 : 1;
             ctx.strokeRect(slice.startX + slice.offsetX, slice.y, slice.width, slice.height);
           }
         }
 
-        // 4. Old TV Phosphor On-Screen Display (OSD)
+        // 4. Extra Analog Grain & Scratch Roughness in Light Mode
+        if (isLight) {
+          // Sharp charcoal scratch tear cuts
+          ctx.fillStyle = `rgba(0, 0, 0, ${0.3 * glitchFade})`;
+          for (let s = 0; s < 7; s++) {
+            const sy = Math.random() * height;
+            const sh = Math.random() * 2.5 + 1;
+            const sw = Math.random() * (width * 0.7) + (width * 0.3);
+            const sx = Math.random() * (width - sw);
+            ctx.fillRect(sx, sy, sw, sh);
+          }
+          // Stark white rough salt flecks
+          ctx.fillStyle = `rgba(255, 255, 255, ${0.5 * glitchFade})`;
+          for (let f = 0; f < 12; f++) {
+            const fx = Math.random() * width;
+            const fy = Math.random() * height;
+            const fw = Math.random() * 8 + 3;
+            const fh = Math.random() * 2 + 1;
+            ctx.fillRect(fx, fy, fw, fh);
+          }
+        }
+
+        // 5. Old TV On-Screen Display (OSD)
         ctx.font = 'bold 12px "Fira Code", monospace';
-        ctx.fillStyle = `rgba(0, 255, 136, ${0.85 * glitchFade})`;
-        ctx.shadowColor = '#00ff88';
-        ctx.shadowBlur = 8;
-        ctx.fillText('▶ PLAY  00:04:26 [V-HOLD]', 24, 40);
-        ctx.fillText('CH 03 · NO SIGNAL', width - 180, 40);
+        if (isLight) {
+          ctx.fillStyle = `rgba(15, 23, 42, ${0.9 * glitchFade})`;
+          ctx.shadowColor = '#000000';
+          ctx.shadowBlur = 4;
+          ctx.fillText('▶ PLAY  00:04:26 [B&W ROUGH]', 24, 40);
+          ctx.fillText('CH 03 · NO SIGNAL', width - 180, 40);
+        } else {
+          ctx.fillStyle = `rgba(0, 255, 136, ${0.85 * glitchFade})`;
+          ctx.shadowColor = '#00ff88';
+          ctx.shadowBlur = 8;
+          ctx.fillText('▶ PLAY  00:04:26 [V-HOLD]', 24, 40);
+          ctx.fillText('CH 03 · NO SIGNAL', width - 180, 40);
+        }
         ctx.shadowBlur = 0;
       }
 
@@ -296,11 +370,11 @@ const Hero = ({ onOpenResume }) => {
 
       {/* Stacked Slice Ghost Overlay (Active during glitch tremor) */}
       {isEarthquakeGlitch && (
-        <div className="absolute inset-0 z-0 pointer-events-none glitch-stack-ghost overflow-hidden mix-blend-screen">
-          <div className="w-full h-full bg-gradient-to-b from-emerald-500/10 via-transparent to-cyan-500/10"></div>
-          {/* Stacked horizontal green slice cuts */}
-          <div className="absolute top-1/4 left-0 right-0 h-10 bg-emerald-400/20 -translate-x-8 border-y border-emerald-400/50 shadow-lg shadow-emerald-500/30"></div>
-          <div className="absolute top-2/3 left-0 right-0 h-14 bg-cyan-400/15 translate-x-10 border-y border-cyan-400/40 shadow-lg shadow-cyan-500/30"></div>
+        <div className="absolute inset-0 z-0 pointer-events-none glitch-stack-ghost overflow-hidden mix-blend-multiply dark:mix-blend-screen">
+          <div className="w-full h-full bg-gradient-to-b from-slate-900/5 dark:from-emerald-500/10 via-transparent to-slate-900/5 dark:to-cyan-500/10"></div>
+          {/* Stacked horizontal slice cuts */}
+          <div className="absolute top-1/4 left-0 right-0 h-10 bg-slate-900/10 dark:bg-emerald-400/20 -translate-x-8 border-y border-slate-900/30 dark:border-emerald-400/50 shadow-md dark:shadow-emerald-500/30"></div>
+          <div className="absolute top-2/3 left-0 right-0 h-14 bg-slate-800/10 dark:bg-cyan-400/15 translate-x-10 border-y border-slate-900/30 dark:border-cyan-400/40 shadow-md dark:shadow-cyan-500/30"></div>
         </div>
       )}
 
