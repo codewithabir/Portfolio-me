@@ -1,9 +1,10 @@
 import React from 'react';
 import SectionHeader from '../common/SectionHeader';
-import { educationData } from '../../data/portfolioData';
+import { usePortfolioData } from '../../context/PortfolioDataContext';
 import { GraduationCap, Calendar, Clock, MapPin, BookOpen, Award, CheckCircle2 } from 'lucide-react';
 
 const Education = () => {
+  const { educationData } = usePortfolioData();
   return (
     <section id="education" className="py-20 md:py-28 relative bg-slate-50/50 dark:bg-slate-900/30 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import SectionHeader from '../common/SectionHeader';
-import { personalData } from '../../data/portfolioData';
+import { usePortfolioData } from '../../context/PortfolioDataContext';
 import { 
   Terminal, 
   GraduationCap, 
@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 
 const About = ({ onOpenResume }) => {
+  const { personalData } = usePortfolioData();
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState('bio.json');
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import SectionHeader from '../common/SectionHeader';
-import { activitiesData } from '../../data/portfolioData';
+import { usePortfolioData } from '../../context/PortfolioDataContext';
 import { 
   Users, 
   Trophy, 
@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 
 const Activities = () => {
+  const { activitiesData } = usePortfolioData();
   return (
     <section id="activities" className="py-20 md:py-28 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

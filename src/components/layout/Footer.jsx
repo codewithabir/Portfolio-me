@@ -1,9 +1,11 @@
 import React from 'react';
-import { personalData, navLinks } from '../../data/portfolioData';
-import { Mail, ArrowUp, Terminal, Heart, Code2 } from 'lucide-react';
+import { usePortfolioData } from '../../context/PortfolioDataContext';
+import { navLinks } from '../../data/portfolioData';
+import { Mail, ArrowUp, Terminal, Heart, Code2, Lock } from 'lucide-react';
 import { Github, Linkedin } from '../common/BrandIcons';
 
-const Footer = () => {
+const Footer = ({ onOpenAdmin }) => {
+  const { personalData } = usePortfolioData();
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -122,14 +124,23 @@ const Footer = () => {
             <span>© 2026 Md. Abir Hossan. All Rights Reserved.</span>
           </div>
 
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1">
+          <div className="flex items-center gap-3">
+            <span className="hidden sm:inline-flex items-center gap-1">
               Crafted with React, Tailwind & Passion
             </span>
 
             <button
+              onClick={onOpenAdmin}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/60 text-slate-500 hover:text-emerald-500 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all text-xs cursor-pointer shadow-xs"
+              title="Admin Control Terminal (Ctrl+Shift+A)"
+            >
+              <Lock className="w-3 h-3 text-emerald-500" />
+              <span>Admin</span>
+            </button>
+
+            <button
               onClick={scrollToTop}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-cyan-400 hover:border-indigo-400 dark:hover:border-cyan-500/50 transition-all duration-200"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-cyan-400 hover:border-indigo-400 dark:hover:border-cyan-500/50 transition-all duration-200 cursor-pointer shadow-xs"
               aria-label="Back to top"
             >
               <span>Back to Top</span>

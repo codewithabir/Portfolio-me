@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
+import { PortfolioDataProvider } from './context/PortfolioDataContext';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Hero from './components/sections/Hero';
@@ -11,9 +12,11 @@ import Activities from './components/sections/Activities';
 import GithubSection from './components/sections/GithubSection';
 import Contact from './components/sections/Contact';
 import ResumeModal from './components/common/ResumeModal';
+import AdminModal from './components/admin/AdminModal';
 
 function PortfolioContent() {
   const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
 
   const handleOpenResume = () => {
     setIsResumeModalOpen(true);
@@ -22,6 +25,26 @@ function PortfolioContent() {
   const handleCloseResume = () => {
     setIsResumeModalOpen(false);
   };
+
+  const handleOpenAdmin = () => {
+    setIsAdminModalOpen(true);
+  };
+
+  const handleCloseAdmin = () => {
+    setIsAdminModalOpen(false);
+  };
+
+  // Keyboard shortcut listener: Ctrl+Shift+A (or Cmd+Shift+A) to open Admin Portal
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+        e.preventDefault();
+        setIsAdminModalOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#070B14] text-slate-800 dark:text-slate-100 transition-colors duration-300 flex flex-col selection:bg-indigo-500 selection:text-white">
@@ -56,12 +79,18 @@ function PortfolioContent() {
       </main>
 
       {/* Footer */}
-      <Footer />
+      <Footer onOpenAdmin={handleOpenAdmin} />
 
       {/* Resume Modal */}
       <ResumeModal
         isOpen={isResumeModalOpen}
         onClose={handleCloseResume}
+      />
+
+      {/* Admin Panel Modal */}
+      <AdminModal
+        isOpen={isAdminModalOpen}
+        onClose={handleCloseAdmin}
       />
     </div>
   );
@@ -70,7 +99,9 @@ function PortfolioContent() {
 export default function App() {
   return (
     <ThemeProvider>
-      <PortfolioContent />
+      <PortfolioDataProvider>
+        <PortfolioContent />
+      </PortfolioDataProvider>
     </ThemeProvider>
   );
 }

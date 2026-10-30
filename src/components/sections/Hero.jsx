@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
-import { personalData } from '../../data/portfolioData';
+import { usePortfolioData } from '../../context/PortfolioDataContext';
 import { 
   ArrowRight, 
   Download, 
@@ -21,6 +21,7 @@ import { Github, Linkedin } from '../common/BrandIcons';
 const Hero = ({ onOpenResume }) => {
   const { theme } = useTheme();
   const themeRef = useRef(theme);
+  const { personalData } = usePortfolioData();
 
   useEffect(() => {
     themeRef.current = theme;

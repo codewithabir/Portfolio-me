@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import SectionHeader from '../common/SectionHeader';
-import { skillsData } from '../../data/portfolioData';
+import { usePortfolioData } from '../../context/PortfolioDataContext';
 import { 
   Code2, 
   Cpu, 
@@ -48,9 +48,10 @@ const getSkillIcon = (iconName) => {
 };
 
 const Skills = () => {
+  const { skillsData } = usePortfolioData();
   const [activeCategory, setActiveCategory] = useState('all');
 
-  const categories = skillsData.categories;
+  const categories = skillsData.categories || [];
   const filteredCategories = activeCategory === 'all'
     ? categories
     : categories.filter(c => c.id === activeCategory);

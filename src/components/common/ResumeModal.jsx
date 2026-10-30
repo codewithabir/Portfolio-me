@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
-import { personalData, educationData, skillsData, activitiesData, projectsData } from '../../data/portfolioData';
+import { usePortfolioData } from '../../context/PortfolioDataContext';
 import { X, Download, Printer, ExternalLink, Mail, MapPin, GraduationCap, Briefcase, Award, Check } from 'lucide-react';
 import { Github, Linkedin } from './BrandIcons';
 
 const ResumeModal = ({ isOpen, onClose }) => {
+  const { personalData, educationData, skillsData, activitiesData, projectsData } = usePortfolioData();
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose();

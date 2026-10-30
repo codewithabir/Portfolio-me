@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import SectionHeader from '../common/SectionHeader';
-import { projectsData } from '../../data/portfolioData';
+import { usePortfolioData } from '../../context/PortfolioDataContext';
 import { 
   ExternalLink, 
   Sparkles, 
@@ -16,6 +16,7 @@ import {
 import { Github } from '../common/BrandIcons';
 
 const Projects = ({ onSelectProject }) => {
+  const { projectsData } = usePortfolioData();
   const [filter, setFilter] = useState('All');
 
   const featuredProject = projectsData.find(p => p.featured);

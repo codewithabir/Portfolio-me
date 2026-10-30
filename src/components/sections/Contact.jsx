@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import SectionHeader from '../common/SectionHeader';
-import { personalData } from '../../data/portfolioData';
+import { usePortfolioData } from '../../context/PortfolioDataContext';
 import confetti from 'canvas-confetti';
 import { 
   Mail, 
@@ -16,6 +16,7 @@ import {
 import { Github, Linkedin } from '../common/BrandIcons';
 
 const Contact = () => {
+  const { personalData } = usePortfolioData();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
